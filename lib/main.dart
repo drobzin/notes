@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:notes/notes.dart';
+import 'package:provider/provider.dart';
 
 void main() {
   runApp(const MyApp());
@@ -20,6 +22,25 @@ class MyApp extends StatelessWidget {
   }
 }
 
+class MyAppState extends ChangeNotifier {
+  List<Note> notes = <Note>[];
+
+  void addNote(Note note) {
+    notes.add(note);
+    notifyListeners();
+  }
+
+  void removeNote(Note note) {
+    notes.remove(note);
+    notifyListeners();
+  }
+
+  void changeNote(Note note) {
+    addNote(note);
+    notifyListeners();
+  }
+}
+
 class MyHomePage extends StatelessWidget {
   const MyHomePage({super.key, required this.title});
 
@@ -27,15 +48,44 @@ class MyHomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return ChangeNotifierProvider(
+      create: (context) => MyAppState(),
+      child: MaterialApp(
+        title: 'first',
+        theme: ThemeData(
+          useMaterial3: true,
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.lightGreen),
+        ),
+        home: MainPage(),
+      ),
+    );
+  }
+}
+
+class MainPage extends StatelessWidget {
+  MainPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    var appState = context.watch<MyAppState>();
     return Scaffold(
-      body: const MainPage(),
+      body: GridView.builder(
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            childAspectRatio: (1 / .6),
+          ),
+          itemCount: appState.notes.length,
+          itemBuilder: (BuildContext context, int index) {
+            return NoteCard(note: appState.notes[index]);
+          }),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => const CreateNote(),
-              ));
+                builder: (context) => CreateNote(),
+              )).then((note) => appState.addNote(note));
         },
         child: const Icon(Icons.add),
       ),
@@ -43,72 +93,71 @@ class MyHomePage extends StatelessWidget {
   }
 }
 
-class MainPage extends StatelessWidget {
-  const MainPage({super.key});
+class NoteCard extends StatelessWidget {
+  const NoteCard({
+    super.key,
+    required this.note,
+  });
+
+  final Note note;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return GridView.builder(
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          childAspectRatio: (1 / .6),
-        ),
-        itemCount: 300,
-        itemBuilder: (BuildContext context, int index) {
-          return Card(
-            color: theme.colorScheme.onPrimary,
-            child: Center(
-              child: Text('Заголовок $index'),
-            ),
-          );
+    final style = theme.textTheme.displayMedium!.copyWith(
+      color: theme.colorScheme.onPrimary,
+    );
+    var appState = context.watch<MyAppState>();
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) =>
+                  CreateNote.withValue(note.header, note.text),
+            )).then((changedNote) {
+          if (changedNote != null) {
+            appState.removeNote(note);
+            appState.addNote(changedNote);
+          }
         });
-  }
-}
-
-class CreateNote extends StatelessWidget {
-  const CreateNote({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Column(
-        children: [
-          SizedBox(
-            height: 50,
-          ),
-          Padding(
-            padding: EdgeInsets.all(8.0),
-            child: TextField(
-              maxLines: null,
-              keyboardType: TextInputType.multiline,
-              decoration: InputDecoration(
-                isCollapsed: true,
-                hintText: 'Заголовок',
-                border: InputBorder.none,
-              ),
-              style: TextStyle(
-                fontSize: 25,
-                height: 2,
-                fontWeight: FontWeight.bold,
-              ),
+      },
+      onLongPress: () async {
+        await showDialog<void>(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: const Text('Удаление'),
+                content: Text('Вы действительно хотите удалить эту заметку'),
+                actions: <Widget>[
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: Icon(Icons.close),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      appState.removeNote(note);
+                      Navigator.pop(context);
+                    },
+                    child: Icon(Icons.check),
+                  )
+                ],
+              );
+            });
+      },
+      child: Card(
+        child: Center(
+          child: Text(
+            note.header,
+            style: TextStyle(
+              height: 2,
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
             ),
           ),
-          Padding(
-            padding: EdgeInsets.only(
-              left: 8,
-              right: 8,
-            ),
-            child: TextField(
-              maxLines: null,
-              keyboardType: TextInputType.multiline,
-              decoration: InputDecoration(
-                hintText: 'Текст заметки',
-                border: InputBorder.none,
-              ),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
