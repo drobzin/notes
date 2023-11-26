@@ -1,27 +1,22 @@
 import 'package:flutter/material.dart';
 
-class Note {
-  String header;
-  String text;
+import 'note.dart';
 
-  Note(this.header, this.text);
-}
-
-class CreateNote extends StatelessWidget {
-  CreateNote({super.key}) {
+class NotePage extends StatelessWidget {
+  NotePage({super.key}) {
     _textController = TextEditingController();
-    _headerController = TextEditingController();
+    _titleController = TextEditingController();
   }
-  CreateNote.withValue(this.header, this.text, {super.key}) {
+  NotePage.withValue(this.title, this.text, {super.key}) {
     _textController = TextEditingController(text: text);
-    _headerController = TextEditingController(text: header);
+    _titleController = TextEditingController(text: title);
   }
 
-  String header = '';
+  String title = '';
   String text = '';
 
-  late TextEditingController _textController;
-  late TextEditingController _headerController;
+  late final TextEditingController _textController;
+  late final TextEditingController _titleController;
 
   @override
   Widget build(BuildContext context) {
@@ -34,12 +29,12 @@ class CreateNote extends StatelessWidget {
           Padding(
             padding: EdgeInsets.all(8.0),
             child: TextField(
-              controller: _headerController,
+              controller: _titleController,
               onChanged: (String value) {
-                header = value;
+                title = value;
               },
-              maxLines: null,
-              keyboardType: TextInputType.multiline,
+              maxLines: 1,
+              textInputAction: TextInputAction.next,
               decoration: InputDecoration(
                 isCollapsed: true,
                 hintText: 'Заголовок',
@@ -74,9 +69,9 @@ class CreateNote extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          header = _headerController.text; // TODO: delete
-          text = _textController.text; // TODO: delete
-          Navigator.pop(context, Note(header, text));
+          title = _titleController.text;
+          text = _textController.text;
+          Navigator.pop(context, Note(title, text));
         },
         child: Icon(Icons.check),
       ),

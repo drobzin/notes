@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:notes/notes.dart';
+import 'package:notes/note_page.dart';
 import 'package:provider/provider.dart';
+
+import 'note.dart';
 
 void main() {
   runApp(const MyApp());
@@ -17,7 +19,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const MyHomePage(),
     );
   }
 }
@@ -42,10 +44,7 @@ class MyAppState extends ChangeNotifier {
 }
 
 class MyHomePage extends StatelessWidget {
-  const MyHomePage({super.key, required this.title});
-
-  final String title;
-
+  const MyHomePage({super.key});
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
@@ -54,7 +53,7 @@ class MyHomePage extends StatelessWidget {
         title: 'first',
         theme: ThemeData(
           useMaterial3: true,
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.lightGreen),
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.greenAccent),
         ),
         home: MainPage(),
       ),
@@ -63,13 +62,20 @@ class MyHomePage extends StatelessWidget {
 }
 
 class MainPage extends StatelessWidget {
-  MainPage({super.key});
+  const MainPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     var appState = context.watch<MyAppState>();
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: theme.colorScheme.primary,
+        foregroundColor: theme.colorScheme.onPrimary,
+        title: Text(
+          'Заметки',
+        ),
+      ),
       body: GridView.builder(
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2,
@@ -84,7 +90,7 @@ class MainPage extends StatelessWidget {
           Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => CreateNote(),
+                builder: (context) => NotePage(),
               )).then((note) => appState.addNote(note));
         },
         child: const Icon(Icons.add),
@@ -103,18 +109,13 @@ class NoteCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final style = theme.textTheme.displayMedium!.copyWith(
-      color: theme.colorScheme.onPrimary,
-    );
     var appState = context.watch<MyAppState>();
     return GestureDetector(
       onTap: () {
         Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) =>
-                  CreateNote.withValue(note.header, note.text),
+              builder: (context) => NotePage.withValue(note.title, note.text),
             )).then((changedNote) {
           if (changedNote != null) {
             appState.removeNote(note);
@@ -130,32 +131,33 @@ class NoteCard extends StatelessWidget {
                 title: const Text('Удаление'),
                 content: Text('Вы действительно хотите удалить эту заметку'),
                 actions: <Widget>[
-                  ElevatedButton(
+                  TextButton(
                     onPressed: () {
                       Navigator.pop(context);
                     },
-                    child: Icon(Icons.close),
+                    child: Text('Нет'),
                   ),
-                  ElevatedButton(
+                  TextButton(
                     onPressed: () {
                       appState.removeNote(note);
                       Navigator.pop(context);
                     },
-                    child: Icon(Icons.check),
-                  )
+                    child: Text('Да'),
+                  ),
                 ],
               );
             });
       },
       child: Card(
-        child: Center(
-          child: Text(
-            note.header,
-            style: TextStyle(
-              height: 2,
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
+        child: ListTile(
+          title: Text(
+            note.title,
+            overflow: TextOverflow.ellipsis,
+          ),
+          subtitle: Text(
+            note.text,
+            maxLines: 4,
+            overflow: TextOverflow.fade,
           ),
         ),
       ),
