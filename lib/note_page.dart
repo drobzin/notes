@@ -1,22 +1,24 @@
 import 'package:flutter/material.dart';
 
-import 'note.dart';
+import 'models/note.dart';
 
-class NotePage extends StatelessWidget {
-  NotePage({super.key}) {
-    _textController = TextEditingController();
-    _titleController = TextEditingController();
-  }
-  NotePage.withValue(this.title, this.text, {super.key}) {
+class NotePage extends StatefulWidget {
+  late final TextEditingController _textController;
+  late final TextEditingController _titleController;
+  final int id;
+
+  NotePage({this.id = 0, String title = '', String? text = '', super.key}) {
     _textController = TextEditingController(text: text);
     _titleController = TextEditingController(text: title);
   }
 
+  @override
+  State<NotePage> createState() => _NotePageState();
+}
+
+class _NotePageState extends State<NotePage> {
   String title = '';
   String text = '';
-
-  late final TextEditingController _textController;
-  late final TextEditingController _titleController;
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +31,7 @@ class NotePage extends StatelessWidget {
           Padding(
             padding: EdgeInsets.all(8.0),
             child: TextField(
-              controller: _titleController,
+              controller: widget._titleController,
               onChanged: (String value) {
                 title = value;
               },
@@ -53,7 +55,7 @@ class NotePage extends StatelessWidget {
               right: 8,
             ),
             child: TextField(
-              controller: _textController,
+              controller: widget._textController,
               onChanged: (String value) {
                 text = value;
               },
@@ -69,9 +71,13 @@ class NotePage extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          title = _titleController.text;
-          text = _textController.text;
-          Navigator.pop(context, Note(title, text));
+          title = widget._titleController.text;
+          text = widget._textController.text;
+          if (widget.id == 0) {
+            Navigator.pop(context, Note.generateId(title, text));
+          } else {
+            Navigator.pop(context, Note(widget.id, title, text));
+          }
         },
         child: Icon(Icons.check),
       ),
