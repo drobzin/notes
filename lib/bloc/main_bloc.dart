@@ -11,7 +11,8 @@ class MainBloc extends Bloc<MainEvent, MainState> {
   MainBloc(this.networkRepository) : super(const MainState()) {
     on<Load>(_onLoad);
     on<Add>(_onAdd);
-    on<Change>(_onChange);
+    on<ChangeNote>(_onChangeNote);
+    on<Delete>(_onDelete);
   }
   Future<void> _onLoad(Load event, Emitter<MainState> emit) async {
     final notes = await networkRepository.getNotes();
@@ -23,9 +24,18 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     emit(MainState(notes: [...state.notes, event.note]));
   }
 
-  Future<void> _onChange(Change event, Emitter<MainState> emit) async {
-    final notes = await networkRepository.changeNote(event.note);
+  Future<void> _onChangeNote(ChangeNote event, Emitter<MainState> emit) async {
+    await networkRepository.changeNote(event.changedNote);
+    final noteIndex = state.notes.indexOf(event.initialNote);
+    final notes = List<Note>.from(state.notes);
+    notes[noteIndex] = event.changedNote;
 
     emit(MainState(notes: notes));
+  }
+
+  Future<void> _onDelete(Delete event, Emitter<MainState> emit) async {
+    await networkRepository.deleteNote(event.note);
+    state.notes.remove(event.note);
+    emit(MainState(notes: state.notes));
   }
 }

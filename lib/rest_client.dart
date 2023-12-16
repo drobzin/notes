@@ -13,4 +13,10 @@ abstract class RestClient {
 
   @POST('/data')
   Future<void> addNote(@Body() Note note);
+
+  @PUT('/data/{id}')
+  Future<void> changeNote(@Path('id') int id, @Body() Note note);
+
+  @DELETE('/data/{id}')
+  Future<void> deleteNote(@Path('id') int id);
 }

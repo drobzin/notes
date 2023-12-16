@@ -10,7 +10,14 @@ class Add extends MainEvent {
   Add(this.note);
 }
 
-class Change extends MainEvent {
+class ChangeNote extends MainEvent {
+  final Note changedNote;
+  final Note initialNote;
+  ChangeNote(this.changedNote, this.initialNote);
+}
+
+class Delete extends MainEvent {
   final Note note;
-  Change(this.note);
+
+  Delete(this.note);
 }

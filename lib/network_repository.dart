@@ -15,9 +15,6 @@ class NetworkRepository {
 
   Future<List<Note>> getNotes() async => _client.getNotes();
   Future<void> addNote(Note note) async => _client.addNote(note);
-  Future<List<Note>> changeNote(Note note) async {
-    await _dio.put('/data/${note.id}', data: note.toJson());
-    return _client.getNotes();
-    //TODO: переделать это под рест клиент
-  }
+  Future<void> changeNote(Note note) async => _client.changeNote(note.id, note);
+  Future<void> deleteNote(Note note) async => _client.deleteNote(note.id);
 }

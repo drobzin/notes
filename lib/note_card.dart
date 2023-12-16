@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:notes/bloc/main_bloc.dart';
 import 'package:notes/note_page.dart';
-import 'package:provider/provider.dart';
 
-import 'bloc/main_bloc.dart';
 import 'models/note.dart';
 
 class NoteCard extends StatelessWidget {
@@ -20,9 +20,7 @@ class NoteCard extends StatelessWidget {
               builder: (context) =>
                   NotePage(id: note.id, title: note.title, text: note.text),
             )).then((changedNote) {
-          if (changedNote != null) {
-            context.read<MainBloc>().add(Change(changedNote));
-          }
+          context.read<MainBloc>().add(ChangeNote(changedNote, note));
         });
       },
       onLongPress: () => showDeleteDialog(context),
@@ -58,7 +56,7 @@ class NoteCard extends StatelessWidget {
               ),
               TextButton(
                 onPressed: () {
-                  //appState.removeNote(note);
+                  context.read<MainBloc>().add(Delete(note));
                   Navigator.pop(context);
                 },
                 child: Text('Да'),
