@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:notes/api/notifications_api.dart';
 
 import 'models/note.dart';
 
@@ -23,11 +24,17 @@ class _NotePageState extends State<NotePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        actions: [
+          IconButton(
+              onPressed: () {
+                setNotification();
+              },
+              icon: Icon(Icons.notification_add))
+        ],
+      ),
       body: Column(
         children: [
-          const SizedBox(
-            height: 50,
-          ),
           Padding(
             padding: EdgeInsets.all(8.0),
             child: TextField(
@@ -82,5 +89,21 @@ class _NotePageState extends State<NotePage> {
         child: Icon(Icons.check),
       ),
     );
+  }
+
+  void setNotification() async {
+    DateTime? pickedDate = await showDatePicker(
+        context: context,
+        initialDate: DateTime.now(),
+        firstDate: DateTime.now(),
+        lastDate: DateTime(DateTime.now().year + 5));
+    TimeOfDay? pickedTime =
+        await showTimePicker(context: context, initialTime: TimeOfDay.now());
+    if (pickedDate != null && pickedTime != null) {
+      DateTime setTime = DateTime(pickedDate.year, pickedDate.month,
+          pickedDate.day, pickedTime.hour, pickedTime.minute);
+      NotificationApi.setNotification(widget.id, "Пришло время этой заметки",
+          widget._titleController.text, 'payload', setTime);
+    }
   }
 }
