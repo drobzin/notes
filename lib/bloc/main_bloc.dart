@@ -27,7 +27,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
   Future<void> _onChangeNote(ChangeNote event, Emitter<MainState> emit) async {
     await networkRepository.changeNote(event.changedNote);
     final noteIndex = state.notes.indexOf(event.initialNote);
-    final notes = List<Note>.from(state.notes);
+    final notes = state.notes.toList();
     notes[noteIndex] = event.changedNote;
 
     emit(MainState(notes: notes));

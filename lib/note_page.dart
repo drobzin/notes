@@ -33,48 +33,50 @@ class _NotePageState extends State<NotePage> {
               icon: Icon(Icons.notification_add))
         ],
       ),
-      body: Column(
-        children: [
-          Padding(
-            padding: EdgeInsets.all(8.0),
-            child: TextField(
-              controller: widget._titleController,
-              onChanged: (String value) {
-                title = value;
-              },
-              maxLines: 1,
-              textInputAction: TextInputAction.next,
-              decoration: InputDecoration(
-                isCollapsed: true,
-                hintText: 'Заголовок',
-                border: InputBorder.none,
-              ),
-              style: TextStyle(
-                fontSize: 25,
-                height: 2,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-          Padding(
-            padding: EdgeInsets.only(
-              left: 8,
-              right: 8,
-            ),
-            child: TextField(
-              controller: widget._textController,
-              onChanged: (String value) {
-                text = value;
-              },
-              maxLines: null,
-              keyboardType: TextInputType.multiline,
-              decoration: InputDecoration(
-                hintText: 'Текст заметки',
-                border: InputBorder.none,
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Padding(
+              padding: EdgeInsets.all(8.0),
+              child: TextField(
+                controller: widget._titleController,
+                onChanged: (String value) {
+                  title = value;
+                },
+                maxLines: 1,
+                textInputAction: TextInputAction.next,
+                decoration: InputDecoration(
+                  isCollapsed: true,
+                  hintText: 'Заголовок',
+                  border: InputBorder.none,
+                ),
+                style: TextStyle(
+                  fontSize: 25,
+                  height: 2,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
-          ),
-        ],
+            Padding(
+              padding: EdgeInsets.only(
+                left: 8,
+                right: 8,
+              ),
+              child: TextField(
+                controller: widget._textController,
+                onChanged: (String value) {
+                  text = value;
+                },
+                maxLines: null,
+                keyboardType: TextInputType.multiline,
+                decoration: InputDecoration(
+                  hintText: 'Текст заметки',
+                  border: InputBorder.none,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
